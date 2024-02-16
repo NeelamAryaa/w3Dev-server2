@@ -1,0 +1,34 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1707969807125,
+      "tag": "0000_typical_living_tribunal",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1708096116765,
+      "tag": "0001_familiar_shiva",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1708100573065,
+      "tag": "0002_familiar_preak",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1708100764189,
+      "tag": "0003_lean_vargas",
+      "breakpoints": true
+    }
+  ]
+}
