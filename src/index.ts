@@ -1,24 +1,20 @@
 // src/index.ts
 import express from "express";
 import cors from "cors";
-
-import {
-  getAllTodos,
-  addTodo,
-  updateTodo,
-  deleteTodo,
-} from "./controllers/todoControllers";
+import todoRoutes from "./routes/todoRoutes";
 
 const app = express();
 const port = 5000;
 app.use(express.json());
-app.use(cors());
+const corsOptions = {
+  origin: "http://localhost:3000",
+  // origin: "https://w3dev-client.onrender.com",
+  methods: ["GET", "POST", "PATCH", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+app.use(cors(corsOptions));
 
-app.get("/todos", getAllTodos);
-app.post("/todos", addTodo);
-
-app.patch("/todo/:id", updateTodo);
-app.delete("/todo/:id", deleteTodo);
+app.use("", todoRoutes);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
