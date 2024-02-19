@@ -15,8 +15,15 @@ export const getAllTodos = async (req: Request, res: Response) => {
 export const addTodo = async (req: Request, res: Response) => {
   try {
     const { task } = req.body;
+    const newTask = task.trim();
+    if (newTask === "") {
+      res.json({ error: "Task should not be empty." });
+    }
 
-    const newTodo = await db.insert(todos).values({ task }).returning();
+    const newTodo = await db
+      .insert(todos)
+      .values({ task: newTask })
+      .returning();
     res.status(201).json(newTodo);
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error" });
@@ -24,22 +31,23 @@ export const addTodo = async (req: Request, res: Response) => {
 };
 
 export const updateTodo = async (req: Request, res: Response) => {
-  console.log(req.body.task);
   try {
     const { id } = req.params;
     const todo_id = parseInt(id);
-    const { task } = req.body;
+    const { task, isCompleted } = req.body;
+
     let updatedTodo;
     if (task) {
       updatedTodo = await db
         .update(todos)
-        .set({ task: task })
+        .set({ task: task, updatedAt: new Date() })
         .where(eq(todos.id, todo_id))
         .returning();
-    } else {
+    }
+    if (isCompleted) {
       updatedTodo = await db
         .update(todos)
-        .set({ isCompleted: true })
+        .set({ isCompleted, updatedAt: new Date() })
         .where(eq(todos.id, todo_id))
         .returning();
     }
@@ -53,7 +61,7 @@ export const deleteTodo = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const todo_id = parseInt(id);
-    console.log("delete kro", todo_id);
+
     await db.delete(todos).where(eq(todos.id, todo_id));
     res.sendStatus(204);
   } catch (error) {
