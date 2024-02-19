@@ -1,14 +1,22 @@
 import { Request, Response } from "express";
 import { db } from "../db/index";
 import { todos } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 export const getAllTodos = async (req: Request, res: Response) => {
   try {
-    const todos = await db.query.todos.findMany();
-    res.json(todos.reverse());
+    // const todos = await db.query.todos.findMany();
+    const todo = await db.select().from(todos).orderBy(desc(todos.createdAt));
+    if (todo.length === 0) {
+      return res.json({ error: "No Data Found!" });
+    }
+
+    // if (todo.length === 0) {
+    //   return res.status(204).json({ error: "Uh oh Nothing Here !" });
+    // } else
+    return res.json(todo);
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -17,16 +25,16 @@ export const addTodo = async (req: Request, res: Response) => {
     const { task } = req.body;
     const newTask = task.trim();
     if (newTask === "") {
-      res.json({ error: "Task should not be empty." });
+      return res.json({ error: "Task should not be empty." });
     }
 
     const newTodo = await db
       .insert(todos)
       .values({ task: newTask })
       .returning();
-    res.status(201).json(newTodo);
+    return res.status(201).json(newTodo);
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -51,9 +59,9 @@ export const updateTodo = async (req: Request, res: Response) => {
         .where(eq(todos.id, todo_id))
         .returning();
     }
-    res.json(updatedTodo);
+    return res.json(updatedTodo);
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -63,8 +71,8 @@ export const deleteTodo = async (req: Request, res: Response) => {
     const todo_id = parseInt(id);
 
     await db.delete(todos).where(eq(todos.id, todo_id));
-    res.sendStatus(204);
+    return res.sendStatus(204);
   } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };

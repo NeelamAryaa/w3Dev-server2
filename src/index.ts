@@ -4,10 +4,10 @@ import cors from "cors";
 import todoRoutes from "./routes/todoRoutes";
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5432;
 app.use(express.json());
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: `http://localhost:3000`,
   // origin: "https://w3dev-client.onrender.com",
   methods: ["GET", "POST", "PATCH", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
