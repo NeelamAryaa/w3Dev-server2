@@ -1,20 +1,40 @@
 import { Request, Response } from "express";
 import { db } from "../db/index";
 import { todos } from "../db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, count } from "drizzle-orm";
 
 export const getAllTodos = async (req: Request, res: Response) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = 5;
+  const offset = (page - 1) * limit;
+
   try {
-    // const todos = await db.query.todos.findMany();
-    const todo = await db.select().from(todos).orderBy(desc(todos.createdAt));
-    if (todo.length === 0) {
+    // const todo = await db.select().from(todos).orderBy(desc(todos.createdAt));
+    const completedCount = await db
+      .select({ value: count(todos.id) })
+      .from(todos)
+      .where(eq(todos.isCompleted, true));
+
+    const completedTodo = completedCount[0].value;
+    const todoCount = await db.select({ value: count(todos.id) }).from(todos);
+    const totalTodo = todoCount[0].value;
+
+    const totalPages = Math.ceil(totalTodo / limit);
+
+    const todo = await db
+      .select()
+      .from(todos)
+      .limit(limit)
+      .offset(offset)
+      .orderBy(desc(todos.createdAt));
+    // const todo = await db.select().from(todos).orderBy(desc(todos.createdAt));
+    // console.log(todo);
+    if (totalTodo === 0) {
       return res.json({ error: "No Data Found!" });
     }
 
-    // if (todo.length === 0) {
-    //   return res.status(204).json({ error: "Uh oh Nothing Here !" });
-    // } else
-    return res.json(todo);
+    // return res.json(todo);
+    return res.json({ todo, totalPages, totalTodo, completedTodo });
   } catch (error) {
     return res.status(500).json({ error: "Internal Server Error" });
   }
